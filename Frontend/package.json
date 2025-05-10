@@ -16,6 +16,7 @@
     "@uiw/react-md-editor": "^4.0.5",
     "axios": "^1.7.9",
     "crypto-js": "^4.2.0",
+    "digital-dockets-sih-mern": "file:..",
     "framer-motion": "^12.10.5",
     "html2canvas": "^1.4.1",
     "html2pdf.js": "^0.10.2",

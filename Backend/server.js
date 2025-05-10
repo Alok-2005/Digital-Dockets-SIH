@@ -20,14 +20,14 @@ if (!fs.existsSync(uploadsDir)){
     fs.mkdirSync(uploadsDir, { recursive: true });
 }
 
-  
+const __dirname2= path.resolve();
 
 // Increase payload limit for file uploads
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
 app.use(cors({
-  origin: process.env.FRONTEND_URL,
+  origin: "http://localhost:5173" || "https://your-production-url.com",
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Accept']
@@ -65,6 +65,13 @@ app.use((req, res) => {
 });
 
 const PORT = process.env.PORT || 3000;
+
+if(process.env.NODE_ENV === 'production') {
+  app.use(express.static(path.join(__dirname2, '../Frontend/dist')));
+  app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname2, '../Frontend/dist/index.html'));
+  });
+}
 
 app.listen(PORT, async () => {
   try {
