@@ -12,7 +12,7 @@ import AdminHomePage from "./pages/AdminHomePage";
 import AcceptReject from "./components/Accept_Reject_Add";
 import Accept_Reject_Page from "./pages/Accept_Reject_Page";
 import Service_list_page from "./pages/Service_list_page";
-import Service_List_Add from "./components/service_list_add";
+import Service_List_Add from "./components/Service_List_Add";
 import Service_Config_Page from "./pages/Service_Config_Page";
 import Service_Config_Add from "./components/Service_Config_Add";
 import Field_List_Page from "./pages/Field_List_Page";
