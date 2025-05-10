@@ -31,6 +31,7 @@ import ServiceFormPage from "./pages/ServiceFormPage";
 import ServicePage from "./pages/ServicePage";
 // import CertificateGeneration from "./pages/CertificateGeneration";
 import CertificateView from "./components/CertificateView";
+import Footer from "./homeComponents/Footer";
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated } = useAuthStore();
   if (!isAuthenticated) {
@@ -262,6 +263,7 @@ function App() {
           />
 
       </Routes>
+      <Footer/>
    <Toaster/>
     </>
   );

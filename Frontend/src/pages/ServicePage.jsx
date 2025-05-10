@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import axios from 'axios';
 import toast from 'react-hot-toast';
 import ServiceFormTable from '../components/ServiceFormTable';
@@ -16,6 +17,12 @@ const ServicePage = () => {
       'Content-Type': 'application/json',
     },
   });
+
+  // Animation variants for the container
+  const containerVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.6 } },
+  };
 
   // Check service status
   useEffect(() => {
@@ -53,45 +60,96 @@ const ServicePage = () => {
 
   if (!serviceId) {
     return (
-      <div className="p-4">
-        <p className="text-red-500">No Service ID provided!</p>
-      </div>
+      <motion.div
+        initial="hidden"
+        animate="visible"
+        variants={containerVariants}
+        className="min-h-screen flex items-center justify-center bg-gray-50 px-4"
+      >
+        <div className="bg-white rounded-xl shadow-lg p-8 border-l-4 border-red-500">
+          <p className="text-red-600 text-lg font-semibold">No Service ID provided!</p>
+        </div>
+      </motion.div>
     );
   }
 
   if (loading) {
     return (
-      <div className="p-4">
-        <p>Loading...</p>
-      </div>
+      <motion.div
+        initial="hidden"
+        animate="visible"
+        variants={containerVariants}
+        className="min-h-screen flex items-center justify-center bg-gray-50 px-4"
+      >
+        <div className="bg-white rounded-xl shadow-lg p-8">
+          <p className="text-gray-600 text-lg font-semibold">Loading...</p>
+        </div>
+      </motion.div>
     );
   }
 
   return (
-    <div className="container mx-auto p-4">
-      <ServiceFormTable serviceId={serviceId} />
-      
-      {/* Only show Apply button if service is enabled */}
-      {isServiceEnabled && (
-        <div className="flex justify-center mt-4">
-          <button
-            onClick={handleApplyClick}
-            className="bg-blue-500 text-white py-2 px-6 rounded-md hover:bg-blue-600 transition-colors duration-200 shadow-md"
-          >
-            Apply
-          </button>
-        </div>
-      )}
-
-      {/* Optional: Show message if service is disabled */}
-      {!isServiceEnabled && (
-        <div className="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-md">
-          <p className="text-center text-yellow-700">
-            This service is currently not available for new applications.
+    <motion.section
+      initial="hidden"
+      animate="visible"
+      variants={containerVariants}
+      className="py-12 px-4 sm:px-6 lg:px-8 bg-gray-50 min-h-screen"
+    >
+      <div className="max-w-6xl mx-auto">
+        {/* Header */}
+        <motion.div
+          className="text-center mb-12"
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.2 }}
+        >
+          <h2 className="text-3xl sm:text-4xl font-bold text-gray-800 mb-4">
+            Service Application: {serviceId}
+          </h2>
+          <div className="w-20 h-1 bg-blue-600 mx-auto mb-6"></div>
+          <p className="text-lg sm:text-xl text-gray-600 max-w-3xl mx-auto">
+            Manage and track your service applications with real-time updates.
           </p>
-        </div>
-      )}
-    </div>
+        </motion.div>
+
+        {/* Service Form Table */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.6, delay: 0.4 }}
+        >
+          <ServiceFormTable serviceId={serviceId} />
+        </motion.div>
+
+        {/* Apply Button or Disabled Message */}
+        {isServiceEnabled ? (
+          <motion.div
+            className="flex justify-center mt-8"
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.5, delay: 0.6 }}
+          >
+            <button
+              onClick={handleApplyClick}
+              className="bg-gradient-to-r from-blue-500 to-blue-700 hover:from-blue-600 hover:to-blue-800 text-white font-semibold py-3 px-8 rounded-full text-lg transition duration-300 transform hover:scale-105 shadow-lg"
+            >
+              Apply for Service
+            </button>
+          </motion.div>
+        ) : (
+          <motion.div
+            className="mt-8 p-6 bg-yellow-50 border border-yellow-200 rounded-xl shadow-md text-center"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.6, delay: 0.6 }}
+          >
+            <p className="text-yellow-700 text-lg font-semibold">
+              This service is currently not available for new applications.
+            </p>
+          </motion.div>
+        )}
+      </div>
+    </motion.section>
   );
 };
 

@@ -2,90 +2,110 @@ import { motion } from "framer-motion";
 import { Loader, Lock, Mail } from "lucide-react";
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import Input from "../components/Input";
 import { useAuthStore } from "../store/authStore";
 import toast from "react-hot-toast";
 
 const LoginPage = () => {
-  const [email, setemail] = useState("");
-  const [password, setpassword] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const { login, isLoading, error } = useAuthStore();
 
-const {login, isLoading,error} =useAuthStore()
-
-  const handleLogin = async(e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      await login(email,password)
-    toast.success("Logged in Successfully")
-    
+      await login(email, password);
+      toast.success("Logged in Successfully");
     } catch (error) {
-      toast.error("Invalid Credentials")
+      toast.error(error.message || "Invalid Credentials");
     }
-    
   };
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
-      className="max-w-md w-full bg-gray-800 bg-opacity-50 backdrop-filter backdrop-blur-xl rounded-blur-xl rounded-2xl shadow-xl
-    overflow-hidden h-full m-auto"
-    >
-      <div className="p-8">
-        <h2 className="text-3xl font-bold mb-6 text-center bg-gradient-to-r from-green-400 to-emerald-500 text-transparent bg-clip-text">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-900 via-indigo-900 to-blue-800 py-12 px-4 sm:px-6 lg:px-8">
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.5 }}
+        className="w-full max-w-md bg-blue-800/20 backdrop-blur-xl rounded-2xl shadow-xl border border-blue-300/20 p-8"
+      >
+        <h2 className="text-3xl font-bold text-center bg-gradient-to-r from-blue-300 to-blue-100 text-transparent bg-clip-text mb-6">
           Welcome Back
         </h2>
+        {error && (
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="text-red-400 text-center mb-4"
+          >
+            {error}
+          </motion.p>
+        )}
+        <form onSubmit={handleLogin} className="space-y-5">
+          <div>
+            <label htmlFor="email" className="block text-sm font-medium text-blue-100">
+              Email Address
+            </label>
+            <div className="mt-1 relative">
+              <Mail className="absolute top-3 left-3 h-5 w-5 text-blue-400" />
+              <input
+                id="email"
+                type="email"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="block w-full px-3 py-2 pl-10 bg-blue-900/30 border border-blue-400/30 rounded-md text-white placeholder-blue-300 focus:outline-none focus:ring-2 focus:ring-blue-500 sm:text-sm"
+                placeholder="you@example.com"
+              />
+            </div>
+          </div>
 
-        <form onSubmit={handleLogin}>
-          <Input
-            icon={Mail}
-            type="email"
-            placeholder="Email Address"
-            value={email}
-            name="email"
-            onChange={(e) => setemail(e.target.value)}
-          />
+          <div>
+            <label htmlFor="password" className="block text-sm font-medium text-blue-100">
+              Password
+            </label>
+            <div className="mt-1 relative">
+              <Lock className="absolute top-3 left-3 h-5 w-5 text-blue-400" />
+              <input
+                id="password"
+                type="password"
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="block w-full px-3 py-2 pl-10 bg-blue-900/30 border border-blue-400/30 rounded-md text-white placeholder-blue-300 focus:outline-none focus:ring-2 focus:ring-blue-500 sm:text-sm"
+                placeholder="••••••••"
+              />
+            </div>
+          </div>
 
-          <Input
-            icon={Lock}
-            type="password"
-            placeholder="Enter Password"
-            value={password}
-            onChange={(e) => setpassword(e.target.value)}
-          />
-
-          <div className="flex items-center mb-6">
-            <Link
-              to="/forgot-password"
-              className="text-sm text-green-400 hover:underline"
-            >
-              Forgot Password ?
+          <div className="flex justify-end">
+            <Link to="/forgot-password" className="text-sm text-blue-300 hover:text-blue-100">
+              Forgot Password?
             </Link>
           </div>
 
-          {/* {error && <p className="text-red-500 font-semibold mb-2">{error}</p>} */}
-
-
           <motion.button
-className=' w-full py-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white font-bold rounded-lg shadow-lg hover:from-green-600 hover:to-emerald-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 focus:ring-offset-gray-900 transition duration-200'
-whileHover={{scale:1.02}}
-whileTap={{scale:0.98}}
-type='submit'
-disabled={isLoading}
->
-  {isLoading ? <Loader className="w-6 h-6 animate-spin mx-auto"/>:"Login"}
-</motion.button>
+            className="w-full py-3 bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900 text-white font-semibold rounded-md shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-blue-900 transition duration-200 disabled:opacity-50"
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            type="submit"
+            disabled={isLoading}
+          >
+            {isLoading ? (
+              <Loader className="w-6 h-6 animate-spin mx-auto" />
+            ) : (
+              "Login"
+            )}
+          </motion.button>
         </form>
-      </div>
 
-      <div className="px-8 py-4 bg-gray-900 bg-opacity-50 flex justify-center ">
-        <p className="text-sm text-gray-400">
-          Don't have an account? {" "}
-          <Link to="/signup" className="text-green-400 hover:underline">Sign Up</Link>
+        <p className="mt-6 text-center text-sm text-blue-200">
+          Don't have an account?{" "}
+          <Link to="/signup" className="font-medium text-blue-300 hover:text-blue-100">
+            Sign Up
+          </Link>
         </p>
-      </div>
-    </motion.div>
+      </motion.div>
+    </div>
   );
 };
 

@@ -1,126 +1,205 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAdminStore } from '../store/adminStore';
+import { motion } from 'framer-motion';
+import { Plus } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 
 const Authorization_Sequence_Page = () => {
-    const getAuthorizationSequence = useAdminStore((state) => state.getAuthorizationSequence); // API call from the store
-    const [data, setData] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const navigate = useNavigate();
+  const getAuthorizationSequence = useAdminStore((state) => state.getAuthorizationSequence);
+  const [data, setData] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
-    // Fetch data on component mount
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const result = await getAuthorizationSequence();
-                console.log('Authorization Sequence Data:', result); // Debug log
+  // Animation variants
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1,
+      },
+    },
+  };
 
-                if (result && result.authorizationSequence) {
-                    setData(result.authorizationSequence);
-                    if (result.authorizationSequence.length === 0) {
-                        toast.info('No authorization sequences available. Please add a new one.');
-                    }
-                } else {
-                    setData([]);
-                    toast.error('No authorization sequence data found.');
-                }
-            } catch (error) {
-                console.error('Error fetching authorization sequence:', error);
-                toast.error(error.message || 'Failed to fetch authorization sequence data.');
-                setData([]);
-            } finally {
-                setLoading(false);
-            }
-        };
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    show: { opacity: 1, y: 0, transition: { duration: 0.5 } },
+  };
 
-        fetchData();
-    }, [getAuthorizationSequence]);
+  // Fetch data on component mount
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const result = await getAuthorizationSequence();
+        console.log('Authorization Sequence Data:', result);
 
-    // Navigate to add new authorization sequence page
-    const handleAddNewSequence = () => {
-        navigate('/dashboard/authorization_sequence_add');
+        if (result && result.authorizationSequence) {
+          setData(result.authorizationSequence);
+          if (result.authorizationSequence.length === 0) {
+            toast.info('No authorization sequences available. Please add a new one.');
+          }
+        } else {
+          setData([]);
+          toast.error('No authorization sequence data found.');
+        }
+      } catch (error) {
+        console.error('Error fetching authorization sequence:', error);
+        toast.error(error.message || 'Failed to fetch authorization sequence data.');
+        setData([]);
+      } finally {
+        setLoading(false);
+      }
     };
 
-    return (
-        <>
-            <div className="container mx-auto p-4">
-                {/* Header Section */}
-                <div className="mb-4 flex justify-between items-center">
-                    <h1 className="text-3xl font-semibold">Authorization Sequence</h1>
-                    <button
-                        onClick={handleAddNewSequence}
-                        className="bg-blue-500 text-white py-2 px-4 rounded-lg shadow-lg hover:bg-blue-600 focus:outline-none"
-                    >
-                        Add New Authorization Sequence
-                    </button>
-                </div>
+    fetchData();
+  }, [getAuthorizationSequence]);
 
-                {/* Loading Indicator */}
-                {loading ? (
-                    <div className="text-center py-8">
-                        <p className="text-gray-600">Loading authorization sequences...</p>
-                    </div>
-                ) : data.length === 0 ? (
-                    /* No Data Available */
-                    <div className="text-center py-8 bg-gray-50 rounded-lg">
-                        <p className="text-gray-600">No authorization sequences found.</p>
-                        <p className="text-gray-500 mt-2">Click "Add New Authorization Sequence" to create one.</p>
-                    </div>
-                ) : (
-                    /* Table Section */
-                    <div className="overflow-x-auto bg-white rounded-lg shadow text-white">
-                        <table className="min-w-full table-auto">
-                            <thead>
-                                <tr className="bg-gray-100">
-                                    <th className="px-6 py-3 text-left text-gray-700 font-semibold">#</th>
-                                    <th className="px-6 py-3 text-left text-gray-700 font-semibold">Service Name</th>
-                                    <th className="px-6 py-3 text-left text-gray-700 font-semibold">User Role</th>
-                                    <th className="px-6 py-3 text-left text-gray-700 font-semibold">Part Of Service</th>
-                                    <th className="px-6 py-3 text-left text-gray-700 font-semibold">Stage</th>
-                                    <th className="px-6 py-3 text-left text-gray-700 font-semibold">Subzones</th>
-                                    <th className="px-6 py-3 text-left text-gray-700 font-semibold">Supervisor Of</th>
-                                    <th className="px-6 py-3 text-left text-gray-700 font-semibold">Can Take Payment</th>
-                                    <th className="px-6 py-3 text-left text-gray-700 font-semibold">Can Reject</th>
-                                    <th className="px-6 py-3 text-left text-gray-700 font-semibold">Created At</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {data.map((item, index) => (
-                                    <tr
-                                        key={item._id}
-                                        className="border-t hover:bg-gray-500 transition-colors duration-200 bg-gray-600"
-                                    >
-                                        <td className="px-6 py-4 text-center">{index + 1}</td>
-                                        <td className="px-6 py-4">{item.service?.name || 'N/A'}</td>
-                                        <td className="px-6 py-4">{item.userId?.role || 'N/A'}</td>
-                                        <td className="px-6 py-4">{item.partOfService ? 'Yes' : 'No'}</td>
-                                        <td className="px-6 py-4">{item.stage || 'N/A'}</td>
-                                        <td className="px-6 py-4">
-                                            {item.subzones && item.subzones.length > 0
-                                                ? item.subzones.map((subzone, index) => (
-                                                      <span key={subzone._id}>
-                                                          {subzone.SubZoneName}
-                                                          {index < item.subzones.length - 1 && ', '}
-                                                      </span>
-                                                  ))
-                                                : 'N/A'}
-                                        </td>
-                                        <td className="px-6 py-4">{item.supervisorOf || 'N/A'}</td>
-                                        <td className="px-6 py-4">{item.canTakePayment ? 'Yes' : 'No'}</td>
-                                        <td className="px-6 py-4">{item.canReject ? 'Yes' : 'No'}</td>
-                                        <td className="px-6 py-4">
-                                            {new Date(item.createdAt).toLocaleString()}
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
-                )}
-            </div>
-        </>
+  // Navigate to add new authorization sequence page
+  const handleAddNewSequence = () => {
+    navigate('/dashboard/authorization_sequence_add');
+  };
+
+  if (loading) {
+    return (
+      <motion.div
+        className="flex items-center justify-center min-h-screen bg-gray-50"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.5 }}
+      >
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      </motion.div>
     );
+  }
+
+  return (
+    <motion.section
+      className="py-12 px-4 sm:px-6 lg:px-8 bg-gray-50 min-h-screen"
+      variants={containerVariants}
+      initial="hidden"
+      animate="show"
+    >
+      <div className="max-w-6xl mx-auto bg-white rounded-xl shadow-lg p-6 sm:p-8 border border-gray-100">
+        <motion.div
+          className="mb-6 flex justify-between items-center"
+          variants={itemVariants}
+        >
+          <div>
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-800">
+              Authorization Sequence
+            </h1>
+            <div className="w-20 h-1 bg-blue-600 mt-2"></div>
+          </div>
+          <button
+            onClick={handleAddNewSequence}
+            className="bg-gradient-to-r from-blue-500 to-blue-700 hover:from-blue-600 hover:to-blue-800 text-white font-semibold py-2 px-6 rounded-lg transition duration-300 transform hover:scale-105 shadow-md flex items-center gap-2"
+          >
+            <Plus className="w-5 h-5" />
+            <span>Add New Sequence</span>
+          </button>
+        </motion.div>
+
+        {data.length === 0 ? (
+          <motion.div
+            className="text-center py-8"
+            variants={itemVariants}
+          >
+            <p className="text-gray-600 text-lg">No authorization sequences found.</p>
+            <p className="text-gray-500 mt-2">
+              Click "Add New Authorization Sequence" to create one.
+            </p>
+          </motion.div>
+        ) : (
+          <motion.div
+            className="overflow-x-auto"
+            variants={itemVariants}
+          >
+            <table className="min-w-full border-collapse border border-gray-200">
+              <thead>
+                <tr className="bg-gray-50">
+                  <th className="px-6 py-3 text-left text-sm font-semibold text-gray-800 border-b">
+                    #
+                  </th>
+                  <th className="px-6 py-3 text-left text-sm font-semibold text-gray-800 border-b">
+                    Service Name
+                  </th>
+                  <th className="px-6 py-3 text-left text-sm font-semibold text-gray-800 border-b">
+                    User Role
+                  </th>
+                  <th className="px-6 py-3 text-left text-sm font-semibold text-gray-800 border-b">
+                    Part Of Service
+                  </th>
+                  <th className="px-6 py-3 text-left text-sm font-semibold text-gray-800 border-b">
+                    Stage
+                  </th>
+                  <th className="px-6 py-3 text-left text-sm font-semibold text-gray-800 border-b">
+                    Subzones
+                  </th>
+                  <th className="px-6 py-3 text-left text-sm font-semibold text-gray-800 border-b">
+                    Supervisor Of
+                  </th>
+                  <th className="px-6 py-3 text-left text-sm font-semibold text-gray-800 border-b">
+                    Can Take Payment
+                  </th>
+                  <th className="px-6 py-3 text-left text-sm font-semibold text-gray-800 border-b">
+                    Can Reject
+                  </th>
+                  <th className="px-6 py-3 text-left text-sm font-semibold text-gray-800 border-b">
+                    Created At
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {data.map((item, index) => (
+                  <motion.tr
+                    key={item._id}
+                    className="hover:bg-gray-50 transition-colors"
+                    variants={itemVariants}
+                  >
+                    <td className="px-6 py-4 text-sm text-gray-800 border-b">
+                      {index + 1}
+                    </td>
+                    <td className="px-6 py-4 text-sm text-gray-800 border-b">
+                      {item.service?.name || 'N/A'}
+                    </td>
+                    <td className="px-6 py-4 text-sm text-gray-800 border-b">
+                      {item.userId?.role || 'N/A'}
+                    </td>
+                    <td className="px-6 py-4 text-sm text-gray-800 border-b">
+                      {item.partOfService ? 'Yes' : 'No'}
+                    </td>
+                    <td className="px-6 py-4 text-sm text-gray-800 border-b">
+                      {item.stage || 'N/A'}
+                    </td>
+                    <td className="px-6 py-4 text-sm text-gray-800 border-b">
+                      {item.subzones && item.subzones.length > 0
+                        ? item.subzones
+                            .map((subzone) => subzone.SubZoneName)
+                            .join(', ')
+                        : 'N/A'}
+                    </td>
+                    <td className="px-6 py-4 text-sm text-gray-800 border-b">
+                      {item.supervisorOf || 'N/A'}
+                    </td>
+                    <td className="px-6 py-4 text-sm text-gray-800 border-b">
+                      {item.canTakePayment ? 'Yes' : 'No'}
+                    </td>
+                    <td className="px-6 py-4 text-sm text-gray-800 border-b">
+                      {item.canReject ? 'Yes' : 'No'}
+                    </td>
+                    <td className="px-6 py-4 text-sm text-gray-800 border-b">
+                      {new Date(item.createdAt).toLocaleString()}
+                    </td>
+                  </motion.tr>
+                ))}
+              </tbody>
+            </table>
+          </motion.div>
+        )}
+      </div>
+    </motion.section>
+  );
 };
 
 export default Authorization_Sequence_Page;

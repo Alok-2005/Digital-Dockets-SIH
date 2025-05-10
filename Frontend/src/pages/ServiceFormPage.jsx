@@ -1,16 +1,33 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useAdminStore } from '../store/adminStore';
+import { motion } from 'framer-motion';
 import toast from 'react-hot-toast';
 
 const ServiceFormPage = () => {
-  const { serviceId } = useParams(); // Grab the serviceId from the URL params
+  const { serviceId } = useParams();
   const [formConfig, setFormConfig] = useState([]);
   const [formData, setFormData] = useState({});
   const [subzones, setSubzones] = useState([]);
   const [selectedSubzone, setSelectedSubzone] = useState('');
   const { getFormConfigByService, submitServiceForm } = useAdminStore();
   const API_URL_Admin = "http://localhost:3000/api/admin";
+
+  // Animation variants
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1,
+      },
+    },
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    show: { opacity: 1, y: 0, transition: { duration: 0.5 } },
+  };
 
   // Fetch form configuration and subzones when the page loads
   useEffect(() => {
@@ -23,7 +40,7 @@ const ServiceFormPage = () => {
           setFormConfig(sortedFields);
 
           const initialData = {};
-          sortedFields.forEach(field => {
+          sortedFields.forEach((field) => {
             initialData[field.fieldName] = field.fieldType === 'CHECKBOX' ? false : '';
           });
           setFormData(initialData);
@@ -48,11 +65,10 @@ const ServiceFormPage = () => {
 
   const handleChange = (e, field) => {
     const { name, value, type, checked, files } = e.target;
-    
+
     if (type === 'file') {
       const file = files[0];
       if (file) {
-        // Optional: Add file size and type validation here
         const maxSize = 5 * 1024 * 1024; // 5MB
         if (file.size > maxSize) {
           toast.error('File size should not exceed 5MB');
@@ -60,26 +76,29 @@ const ServiceFormPage = () => {
         }
       }
     }
-    
+
     const newValue = type === 'checkbox' ? checked : type === 'file' ? files[0] : value;
-  
-    setFormData(prev => ({
+
+    setFormData((prev) => ({
       ...prev,
-      [name]: newValue
+      [name]: newValue,
     }));
   };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     const formDataToSend = new FormData();
-  
+
     // Find the selected subzone object
-    const selectedSubzoneObject = subzones.find(sz => sz._id === selectedSubzone);
-  
+    const selectedSubzoneObject = subzones.find((sz) => sz._id === selectedSubzone);
+
     // Add both subzone ID and name to the form data
     formDataToSend.append('subzone', selectedSubzone);
-    formDataToSend.append('subzoneName', selectedSubzoneObject ? 
-      `${selectedSubzoneObject.zoneId} - ${selectedSubzoneObject.SubZoneName}` : '');
-  
+    formDataToSend.append(
+      'subzoneName',
+      selectedSubzoneObject ? `${selectedSubzoneObject.zoneId} - ${selectedSubzoneObject.SubZoneName}` : ''
+    );
+
     // Add all other form fields
     Object.entries(formData).forEach(([key, value]) => {
       if (value instanceof File) {
@@ -90,30 +109,28 @@ const ServiceFormPage = () => {
         formDataToSend.append(key, value);
       }
     });
-  
+
     try {
       console.log('Submitting form data:', Object.fromEntries(formDataToSend));
       const response = await submitServiceForm(serviceId, formDataToSend);
       if (response?.success) {
-        toast.success(response?.message || "Form submitted successfully!");
-  
+        toast.success(response?.message || 'Form submitted successfully!');
+
         // Reset the form after successful submission
         const initialData = {};
-        formConfig.forEach(field => {
+        formConfig.forEach((field) => {
           initialData[field.fieldName] = field.fieldType === 'CHECKBOX' ? false : '';
         });
         setFormData(initialData);
         setSelectedSubzone('');
       } else {
-        toast.error(response?.message || "Failed to submit form");
+        toast.error(response?.message || 'Failed to submit form');
       }
     } catch (error) {
       console.error('Submission Error:', error);
       toast.error('Failed to submit the form.');
     }
   };
-  
-  
 
   const renderField = (field) => {
     switch (field.fieldType) {
@@ -124,17 +141,17 @@ const ServiceFormPage = () => {
       case 'TIME':
         return (
           <input
-            type={field.fieldType === 'DATE' ? 'date' : field.fieldType.split('-')[1]}
+            type={field.fieldType === 'DATE' ? 'date' : field.fieldType.split('-')[1].toLowerCase()}
             id={field.fieldName}
             name={field.fieldName}
             value={formData[field.fieldName] || ''}
             onChange={(e) => handleChange(e, field)}
             required={field.required}
-            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring focus:ring-blue-500"
+            className="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 bg-white text-gray-800"
             placeholder={field.helpBlock}
           />
         );
-  
+
       case 'TEXTAREA':
         return (
           <textarea
@@ -144,120 +161,155 @@ const ServiceFormPage = () => {
             onChange={(e) => handleChange(e, field)}
             required={field.required}
             rows="4"
-            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring focus:ring-blue-500"
+            className="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 bg-white text-gray-800"
             placeholder={field.helpBlock}
           />
         );
-  
-        case 'UPLOAD':
-          return (
-            <div>
-              <input
-                type="file"
-                id={field.fieldName}
-                name={field.fieldName}
-                onChange={(e) => handleChange(e, field)}
-                required={field.required}
-                className="mt-1 block w-full text-sm text-gray-900 border border-gray-300 rounded-md cursor-pointer"
-                accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" // Specify accepted file types
-              />
-              {formData[field.fieldName] && (
-                <p className="mt-1 text-sm text-gray-500">
-                  Selected file: {formData[field.fieldName].name}
-                </p>
-              )}
-            </div>
-          );
-          case 'SELECT':
-            return (
-              <select
-                id={field.fieldName}
-                name={field.fieldName}
-                value={formData[field.fieldName] || ''}
-                onChange={(e) => handleChange(e, field)}
-                required={field.required}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring focus:ring-blue-500"
-              >
-                <option value="">Select {field.nameOfLabel}</option>
-                {field.fieldListId?.options?.map((option) => (
-                  <option key={option.value} value={option.label}>  {/* Changed from option.value to option.label */}
-                    {option.label}
-                  </option>
-                ))}
-              </select>
-            );
-      case 'RADIO':
-        return field.fieldListId?.options?.map((option) => (
-          <div key={option.value} className="flex items-center space-x-2">
+
+      case 'UPLOAD':
+        return (
+          <div>
             <input
-              type="radio"
-              id={`${field.fieldName}_${option.value}`}
+              type="file"
+              id={field.fieldName}
               name={field.fieldName}
-              value={option.value}
-              checked={formData[field.fieldName] === option.value}
               onChange={(e) => handleChange(e, field)}
               required={field.required}
-              className="form-radio text-blue-600"
+              className="mt-1 block w-full text-sm text-gray-800 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:bg-blue-50 file:text-blue-700 file:hover:bg-blue-100 cursor-pointer"
+              accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
             />
-            <label htmlFor={`${field.fieldName}_${option.value}`} className="text-gray-700">
-              {option.label}
-            </label>
+            {formData[field.fieldName] && (
+              <p className="mt-2 text-sm text-gray-600">
+                Selected file: {formData[field.fieldName].name}
+              </p>
+            )}
           </div>
-        ));
-  
+        );
+
+      case 'SELECT':
+        return (
+          <select
+            id={field.fieldName}
+            name={field.fieldName}
+            value={formData[field.fieldName] || ''}
+            onChange={(e) => handleChange(e, field)}
+            required={field.required}
+            className="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 bg-white text-gray-800"
+          >
+            <option value="">Select {field.nameOfLabel}</option>
+            {field.fieldListId?.options?.map((option) => (
+              <option key={option.value} value={option.label}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+        );
+
+      case 'RADIO':
+        return (
+          <div className="flex flex-col space-y-2">
+            {field.fieldListId?.options?.map((option) => (
+              <div key={option.value} className="flex items-center space-x-3">
+                <input
+                  type="radio"
+                  id={`${field.fieldName}_${option.value}`}
+                  name={field.fieldName}
+                  value={option.value}
+                  checked={formData[field.fieldName] === option.value}
+                  onChange={(e) => handleChange(e, field)}
+                  required={field.required}
+                  className="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500"
+                />
+                <label
+                  htmlFor={`${field.fieldName}_${option.value}`}
+                  className="text-sm text-gray-800"
+                >
+                  {option.label}
+                </label>
+              </div>
+            ))}
+          </div>
+        );
+
       default:
-        return <p className="text-red-500">Unsupported field type: {field.fieldType}</p>;
+        return <p className="text-red-500 text-sm">Unsupported field type: {field.fieldType}</p>;
     }
   };
 
   return (
-    <div className="container mx-auto p-4 max-w-2xl bg-white text-black">
-      <h1 className="text-2xl font-semibold mb-6 text-gray-800">Service Form</h1>
-      <form onSubmit={handleSubmit} className="space-y-6">
-        {/* Subzone Dropdown */}
-        <div>
-          <label htmlFor="subzone" className="block text-sm font-medium text-gray-700">
-            Select Subzone
-          </label>
-          <select
-            id="subzone"
-            name="subzone"
-            value={selectedSubzone}
-            onChange={(e) => setSelectedSubzone(e.target.value)}
-            required
-            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring focus:ring-blue-500"
-          >
-            <option value="">Select a Subzone</option>
-            {subzones.map((subzone) => (
-              <option key={subzone._id} value={subzone._id}>
-                {subzone.zoneId} - {subzone.SubZoneName}
-              </option>
-            ))}
-          </select>
-        </div>
+    <motion.section
+      className="py-12 px-4 sm:px-6 lg:px-8 bg-gray-50 min-h-screen"
+      variants={containerVariants}
+      initial="hidden"
+      animate="show"
+    >
+      <div className="max-w-2xl mx-auto bg-white rounded-xl shadow-lg p-6 sm:p-8 border border-gray-100">
+        <motion.div variants={itemVariants}>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-4">
+            Service Form: {serviceId}
+          </h1>
+          <div className="w-20 h-1 bg-blue-600 mb-6"></div>
+        </motion.div>
 
-        {/* Dynamic Fields */}
-        {formConfig.map((field) => (
-          <div key={field._id}>
-            <label htmlFor={field.fieldName} className="block text-sm font-medium text-gray-700">
-              {field.nameOfLabel}
-              {field.required && <span className="text-red-500"> *</span>}
-            </label>
-            {renderField(field)}
-            {field.helpBlock && field.fieldType !== 'CHECKBOX' && (
-              <p className="mt-1 text-sm text-gray-500">{field.helpBlock}</p>
-            )}
-          </div>
-        ))}
-
-        <button
-          type="submit"
-          className="w-full bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600"
+        <motion.form
+          onSubmit={handleSubmit}
+          className="space-y-6"
+          variants={containerVariants}
         >
-          Submit
-        </button>
-      </form>
-    </div>
+          {/* Subzone Dropdown */}
+          <motion.div variants={itemVariants}>
+            <label
+              htmlFor="subzone"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
+              Select Subzone
+              <span className="text-red-500">*</span>
+            </label>
+            <select
+              id="subzone"
+              name="subzone"
+              value={selectedSubzone}
+              onChange={(e) => setSelectedSubzone(e.target.value)}
+              required
+              className="block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 bg-white text-gray-800"
+            >
+              <option value="">Select a Subzone</option>
+              {subzones.map((subzone) => (
+                <option key={subzone._id} value={subzone._id}>
+                  {subzone.zoneId} - {subzone.SubZoneName}
+                </option>
+              ))}
+            </select>
+          </motion.div>
+
+          {/* Dynamic Fields */}
+          {formConfig.map((field) => (
+            <motion.div key={field._id} variants={itemVariants}>
+              <label
+                htmlFor={field.fieldName}
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
+                {field.nameOfLabel}
+                {field.required && <span className="text-red-500">*</span>}
+              </label>
+              {renderField(field)}
+              {field.helpBlock && field.fieldType !== 'CHECKBOX' && (
+                <p className="mt-1 text-sm text-gray-600">{field.helpBlock}</p>
+              )}
+            </motion.div>
+          ))}
+
+          <motion.div variants={itemVariants}>
+            <button
+              type="submit"
+              className="w-full bg-gradient-to-r from-blue-500 to-blue-700 hover:from-blue-600 hover:to-blue-800 text-white font-semibold py-3 px-6 rounded-lg transition duration-300 transform hover:scale-105 shadow-md"
+            >
+              Submit
+            </button>
+          </motion.div>
+        </motion.form>
+      </div>
+    </motion.section>
   );
 };
 
