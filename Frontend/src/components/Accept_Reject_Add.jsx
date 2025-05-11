@@ -21,7 +21,7 @@ const Accept_Reject_Add = () => {
   const isProcessing = Boolean(location.state?.submissionId);
 
   const api = axios.create({
-    baseURL: 'http://localhost:3000' ||"https://digital-dockets-sih.onrender.com",
+    baseURL: 'http://localhost:3000' ||"https://digital-dockets-sih-2.onrender.com",
     withCredentials: true,
     headers: {
       'Content-Type': 'application/json',

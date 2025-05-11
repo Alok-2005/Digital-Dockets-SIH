@@ -12,7 +12,7 @@ const ServiceFormTable = ({ serviceId }) => {
   const navigate = useNavigate();
 
   const api = axios.create({
-    baseURL: 'http://localhost:3000',
+    baseURL: 'http://localhost:3000'||'https://digital-dockets-sih-2.onrender.com',
     withCredentials: true,
     headers: {
       'Content-Type': 'application/json',

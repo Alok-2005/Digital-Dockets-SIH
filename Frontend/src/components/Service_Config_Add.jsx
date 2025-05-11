@@ -13,6 +13,7 @@ const Service_Config_Add = () => {
     customRate: '',
     certificateData: '',
   });
+  const BASE_URL = 'https://digital-dockets-sih-2.onrender.com' || 'http://localhost:3000';
 
   const [services, setServices] = useState([]);
   const [subzones, setSubzones] = useState([]);
@@ -56,7 +57,7 @@ const Service_Config_Add = () => {
         }
 
         // Fetch Subzones
-        const subzoneResponse = await axios.get('http://localhost:3000/api/admin/master_subzone');
+        const subzoneResponse = await axios.get(`${BASE_URL}/api/admin/master_subzone`);
         if (subzoneResponse.data && subzoneResponse.data.success) {
           setSubzones(subzoneResponse.data.subzones);
         } else {
@@ -94,7 +95,7 @@ const Service_Config_Add = () => {
 
     if (serviceId) {
       try {
-        const response = await axios.get(`http://localhost:3000/api/admin/form_config/service/${serviceId}`);
+        const response = await axios.get(`${BASE_URL}/api/admin/form_config/service/${serviceId}`);
         if (response.data && response.data.success && Array.isArray(response.data.data)) {
           const placeholders = response.data.data.map((field) => `{{${field.fieldName}}}`);
           const subzonePlaceholders = ['{{subzoneName}}'];

@@ -24,6 +24,8 @@ const ServicePage = () => {
     visible: { opacity: 1, y: 0, transition: { duration: 0.6 } },
   };
 
+  const BASE_URL =  'http://localhost:3000' || 'https://digital-dockets-sih-2.onrender.com';
+
   // Check service status
   useEffect(() => {
     const checkServiceStatus = async () => {
@@ -33,7 +35,7 @@ const ServicePage = () => {
       }
 
       try {
-        const response = await api.get(`http://localhost:3000/api/admin/generate-form/status/${serviceId}`);
+        const response = await api.get(`${BASE_URL}/api/admin/generate-form/status/${serviceId}`);
         if (response.data.success) {
           setIsServiceEnabled(response.data.status === 'ENABLED');
         } else {

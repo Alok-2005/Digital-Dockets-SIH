@@ -13,10 +13,11 @@ const CertificateView = () => {
   const location = useLocation();
   const { serviceId, submissionData } = location.state || {};
 
+  const BASE_URL = 'https://digital-dockets-sih-2.onrender.com' || 'http://localhost:3000';
   useEffect(() => {
     const fetchCertificateData = async () => {
       try {
-        const response = await axios.get(`http://localhost:3000/api/admin/service_config/certificate/${serviceId}`, {
+        const response = await axios.get(`${BASE_URL}/api/admin/service_config/certificate/${serviceId}`, {
           withCredentials: true,
         });
 

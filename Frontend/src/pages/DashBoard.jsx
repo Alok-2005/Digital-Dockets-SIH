@@ -19,11 +19,12 @@ const DashBoard = () => {
     },
   });
 
+  const BASE_URL = 'https://digital-dockets-sih-2.onrender.com' || "http://localhost:3000";
   // Fetch user role
   useEffect(() => {
     const fetchUserRole = async () => {
       try {
-        const response = await api.get("http://localhost:3000/api/auth/check-auth");
+        const response = await api.get(`${BASE_URL}/api/auth/check-auth`);
         if (response.data.success) {
           setUserRole(response.data.user.role);
         }
