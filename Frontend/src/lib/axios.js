@@ -1,8 +1,25 @@
-import axios from "axios";
+// lib/axios.js
+import axios from 'axios';
 
 const axiosInstance = axios.create({
-    baseURL: import.meta.mode==="development"?"https://digital-dockets-sih-2.onrender.com/api":"localhost:3000/api",
-    withCredentials: true, //send cookies to the server
-})
+  baseURL: 'https://digital-dockets-sih-2.onrender.com/api',
+  withCredentials: true,
+});
 
-export default axiosInstance
+axiosInstance.interceptors.request.use(
+  (config) => {
+    console.log('Request:', {
+      url: config.url,
+      headers: config.headers,
+      withCredentials: config.withCredentials,
+    });
+    const token = localStorage.getItem('accessToken');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
+
+export default axiosInstance;
