@@ -13,7 +13,7 @@ const Service_Config_Add = () => {
     customRate: '',
     certificateData: '',
   });
-  const BASE_URL = 'https://digital-dockets-sih-2.onrender.com' || 'http://localhost:3000';
+  const BASE_URL = 'https://digital-dockets-sih-2.onrender.com'
 
   const [services, setServices] = useState([]);
   const [subzones, setSubzones] = useState([]);

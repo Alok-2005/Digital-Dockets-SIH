@@ -11,7 +11,7 @@ const Accept_Reject_Page = () => {
   const navigate = useNavigate();
 
   const api = axios.create({
-    baseURL: 'http://localhost:3000' ||'https://digital-dockets-sih-2.onrender.com',
+    baseURL: 'https://digital-dockets-sih-2.onrender.com',
     withCredentials: true,
     headers: {
       'Content-Type': 'application/json',

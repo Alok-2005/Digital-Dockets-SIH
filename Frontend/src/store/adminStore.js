@@ -2,7 +2,7 @@ import { create } from "zustand";
 import axios from "../lib/axios.js";
 import toast from "react-hot-toast";
 
-const API_URL_Admin = "http://localhost:3000/api/admin" || "https://digital-dockets-sih-2.onrender.com/api/admin";
+const API_URL_Admin =  "https://digital-dockets-sih-2.onrender.com/api/admin";
 axios.defaults.withCredentials = true;
 
 export const useAdminStore = create((set) => ({

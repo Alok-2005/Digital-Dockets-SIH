@@ -5,7 +5,7 @@ import toast from 'react-hot-toast';
 const PaymentForm = ({ submissionId }) => {
   const [paymentStatus, setPaymentStatus] = useState('pending');
 
-  const BASE_URL = 'https://digital-dockets-sih-2.onrender.com' || 'http://localhost:3000';
+  const BASE_URL = 'https://digital-dockets-sih-2.onrender.com' 
   const handlePayment = async () => {
     try {
       const response = await axios.post(`${BASE_URL}/api/admin/service/${submissionId}/payment`, {

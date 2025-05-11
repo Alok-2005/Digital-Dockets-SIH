@@ -24,7 +24,7 @@ const ServicePage = () => {
     visible: { opacity: 1, y: 0, transition: { duration: 0.6 } },
   };
 
-  const BASE_URL =  'http://localhost:3000' || 'https://digital-dockets-sih-2.onrender.com';
+  const BASE_URL = 'https://digital-dockets-sih-2.onrender.com';
 
   // Check service status
   useEffect(() => {

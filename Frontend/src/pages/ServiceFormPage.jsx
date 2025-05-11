@@ -11,7 +11,7 @@ const ServiceFormPage = () => {
   const [subzones, setSubzones] = useState([]);
   const [selectedSubzone, setSelectedSubzone] = useState('');
   const { getFormConfigByService, submitServiceForm } = useAdminStore();
-  const API_URL_Admin = "http://localhost:3000/api/admin" || "https://digital-dockets-sih-2.onrender.com/api/admin";
+  const API_URL_Admin =  "https://digital-dockets-sih-2.onrender.com/api/admin";
 
   // Animation variants
   const containerVariants = {

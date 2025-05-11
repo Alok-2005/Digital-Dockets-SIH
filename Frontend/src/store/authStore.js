@@ -2,7 +2,7 @@ import { create } from "zustand";
 import axios from "../lib/axios.js";
 import toast from "react-hot-toast";
 
-const API_URL = "http://localhost:3000/api/auth" || "https://digital-dockets-sih-2.onrender.com/api/auth";
+const API_URL =  "https://digital-dockets-sih-2.onrender.com/api/auth";
 axios.defaults.withCredentials = true;
 
 export const useAuthStore = create((set) => ({

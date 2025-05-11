@@ -13,7 +13,7 @@ const CertificateView = () => {
   const location = useLocation();
   const { serviceId, submissionData } = location.state || {};
 
-  const BASE_URL = 'https://digital-dockets-sih-2.onrender.com' || 'http://localhost:3000';
+  const BASE_URL = 'https://digital-dockets-sih-2.onrender.com' 
   useEffect(() => {
     const fetchCertificateData = async () => {
       try {
