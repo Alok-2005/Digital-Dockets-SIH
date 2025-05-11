@@ -16,14 +16,17 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const uploadsDir = path.join(process.cwd(), 'Uploads');
 if (!fs.existsSync(uploadsDir)) {
-  fs.mkdirSync(uploadsDir, { recursive: true })
+  fs.mkdirSync(uploadsDir, { recursive: true });
 }
 
 const __dirname2 = path.resolve();
 
+// Middleware
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
+app.use(cookieParser());
 
+// CORS Configuration
 app.use(cors({
   origin: 'https://digital-dockets-sih-ggqd.vercel.app',
   credentials: true,
@@ -31,10 +34,18 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Accept', 'Authorization'],
 }));
 
+// Handle OPTIONS preflight requests explicitly
+app.options('*', cors({
+  origin: 'https://digital-dockets-sih-ggqd.vercel.app',
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Accept', 'Authorization'],
+}));
+
+// Debug incoming requests
 app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Credentials', 'true');
-  res.header('Access-Control-Allow-Origin', 'https://digital-dockets-sih-ggqd.vercel.app');
   console.log('Request:', {
+    method: req.method,
     url: req.url,
     headers: req.headers,
     cookies: req.cookies,
@@ -42,17 +53,18 @@ app.use((req, res, next) => {
   next();
 });
 
-app.use(cookieParser());
-
+// Serve static files
 app.use('/Uploads', express.static(path.join(__dirname, 'Uploads'), {
   setHeaders: (res) => {
     res.set('Cross-Origin-Resource-Policy', 'cross-origin');
   },
 }));
 
+// Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/admin', adminRoutes);
 
+// Error handling
 app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(500).json({
@@ -66,14 +78,15 @@ app.use((req, res) => {
   res.status(404).json({ success: false, message: 'Route not found' });
 });
 
-const PORT = process.env.PORT || 3000;
-
+// Serve frontend in production
 if (process.env.NODE_ENV === 'production') {
   app.use(express.static(path.join(__dirname2, '../Frontend/dist')));
   app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname2, '../Frontend/dist/index.html'));
   });
 }
+
+const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, async () => {
   try {
