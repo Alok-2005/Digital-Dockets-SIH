@@ -596,7 +596,7 @@ export const submitServiceForm = async (req, res) => {
     if (req.files && req.files.length > 0) {
       req.files.forEach(file => {
         const filename = encodeURIComponent(file.filename);
-        formData[file.fieldname] = `https://digital-dockets-sih-2.onrender.com/uploads/${filename}`;
+        formData[file.fieldname] = `https://digital-dockets-sih-2.onrender.com/Uploads/${filename}`;
       });
     }
 
