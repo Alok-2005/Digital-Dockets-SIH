@@ -27,30 +27,27 @@ const generateToken = (userID) => {
   };
 
 
-  const setCookie = (res, accessToken, refreshToken) => {
-    res.cookie("accessToken", accessToken, {
-      // Set the cookie to be "httpOnly".
-      // This means the cookie cannot be accessed by JavaScript running in the browser,
-      // which helps prevent XSS (Cross-Site Scripting) attacks.
-      // reducing the risk of XSS attacks by preventing malicious scripts from reading the token.
-      httpOnly: true,
   
-      secure: process.env.NODE_ENV === "production",
-      // Ensures that the cookie is not sent along with cross-site requests.
-      // Helps protect against CSRF (Cross-Site Request Forgery) attacks, as the cookie will only be included with requests made from the same site.
-      // Setting this to "strict" means that the cookie will not be sent even if the user navigates to the site from an external link.
-      sameSite: "strict",
-      maxAge: 15 * 60 * 1000, //This specifies how long the cookie will last before expiring, in milliseconds  ...15 min
-    });
-    res.cookie("refreshToken", refreshToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days in milliseconds
-    });
-  };
 
 
+
+const setCookie = (res, accessToken, refreshToken) => {
+  console.log('Setting cookies:', { accessToken, refreshToken }); // Debug
+  res.cookie("accessToken", accessToken, {
+    httpOnly: true,
+    secure: true, // Always true for HTTPS in production
+    sameSite: "none", // Required for cross-site requests
+    maxAge: 15 * 60 * 1000, // 15 minutes
+    path: "/", // Ensure cookie is sent for all routes
+  });
+  res.cookie("refreshToken", refreshToken, {
+    httpOnly: true,
+    secure: true,
+    sameSite: "none",
+    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+    path: "/",
+  });
+};
 
   export const checkAuth = async (req, res) => {
     try {
